@@ -1,0 +1,6 @@
+*.userprefs
+*.pidb
+*.mdb
+test-results/
+bin/
+obj/
