@@ -8,6 +8,12 @@
             return string.Format("{0}.{1} {2}", Prefix, Name, Direction);
         }
 
+        public override int GetHashCode() {
+            var code = Prefix.GetHashCode();
+            code ^= Name.GetHashCode();
+            code ^= Direction.GetHashCode();
+            return code;
+        }
         public override bool Equals(object obj) {
             var obj1 = (SqlOrderByColumn)obj;
             var @equals = Prefix.Equals(obj1.Prefix);

@@ -3,6 +3,10 @@
         public string Alias { get; set; }
         public string Name { get; set; }
 
+        public override int GetHashCode() {
+            return Alias.GetHashCode() ^ Name.GetHashCode();
+        }
+
         public bool Equals(SqlTable obj) {
             return Alias.Equals(obj.Alias) && Name.Equals(obj.Name);
         }

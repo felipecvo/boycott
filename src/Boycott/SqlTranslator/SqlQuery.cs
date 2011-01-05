@@ -80,6 +80,17 @@
             return builder.ToString();
         }
 
+        public override int GetHashCode() {
+            var code = Take.GetHashCode();
+            code ^= Skip.GetHashCode();
+            code ^= Tables.GetHashCode();
+            code ^= ColumnsOutput.GetHashCode();
+            code ^= OrderBy.GetHashCode();
+            code ^= Joins.GetHashCode();
+            code ^= WhereClause != null ? WhereClause.GetHashCode() : 1;
+            return code;
+        }
+
         public bool Equals(SqlQuery obj) {
             var @equals = true;
             @equals &= Take.Equals(obj.Take);

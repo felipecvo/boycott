@@ -9,6 +9,14 @@
             return string.Format("INNER JOIN {0} AS {1} ON {2} = {3}", JoinTable, JoinAlias, Left, Right);
         }
 
+        public override int GetHashCode() {
+            var code = JoinAlias.GetHashCode();
+            code ^= JoinTable.GetHashCode();
+            code ^= Left.GetHashCode();
+            code ^= Right.GetHashCode();
+            return code;
+        }
+
         public override bool Equals(object obj) {
             var obj2 = (SqlJoin)obj;
             var @equals = JoinAlias.Equals(obj2.JoinAlias);
