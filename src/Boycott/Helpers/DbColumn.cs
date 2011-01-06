@@ -13,6 +13,7 @@
         public int Limit { get; set; }
         public bool AutoIncrement { get; set; }
         public string DefaultValue { get; set; }
+        public bool IsSynchronizable { get; set; }
 
         public override int GetHashCode() {
             var safeCode = Name.GetHashCode();
