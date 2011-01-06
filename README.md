@@ -6,12 +6,11 @@ configurationless, code only, .net ORM library
 
 # Setup Provider
 
-   Configuration.DatabaseProvider = new MySQLProvider("localhost", "tsukianimes9", "root", "root");
+  ` Configuration.DatabaseProvider = new MySQLProvider("localhost", "tsukianimes9", "root", "root");`
 
 
 # Synchronization process
 
-`
     var sync = new Synchronizator();
     if (!sync.DatabseExists) {
         Configuration.DatabaseProvider.CreateDatabase();
@@ -20,7 +19,6 @@ configurationless, code only, .net ORM library
     if (sync.Check()) {
         sync.Sync();
     }
-`
 
 # Defining a class
 
