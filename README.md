@@ -11,7 +11,7 @@ configurationless, code only, .net ORM library
 
 # Synchronization process
 
-```c#
+`
     var sync = new Synchronizator();
     if (!sync.DatabseExists) {
         Configuration.DatabaseProvider.CreateDatabase();
@@ -20,7 +20,7 @@ configurationless, code only, .net ORM library
     if (sync.Check()) {
         sync.Sync();
     }
-```
+`
 
 # Defining a class
 
