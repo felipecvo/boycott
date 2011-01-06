@@ -6,9 +6,7 @@ configurationless, code only, .net ORM library
 
 # Setup Provider
 
-```c#
    Configuration.DatabaseProvider = new MySQLProvider("localhost", "tsukianimes9", "root", "root");
-```
 
 
 # Synchronization process
