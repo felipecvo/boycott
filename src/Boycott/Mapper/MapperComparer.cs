@@ -13,25 +13,31 @@
         }
 
         public bool Check() {
-            if (!tableMapper.TableExists)
-                return true;
-            return !objectMapper.Equals(tableMapper);
+            if (objectMapper.IsSynchronizable) {
+                if (!tableMapper.TableExists)
+                    return true;
+                return !objectMapper.Equals(tableMapper);
+            }
+
+            return false;
         }
 
         public TableDiff GetDiff() {
             var diff = new TableDiff(objectMapper.TableName);
-            
-            foreach (var item in objectMapper.Columns) {
-                if (!tableMapper.Columns.Contains(item)) {
-                    diff.AddedColumns.Add(item);
+
+            if (objectMapper.IsSynchronizable) {
+                foreach (var item in objectMapper.Columns) {
+                    if (!tableMapper.Columns.Contains(item) && item.IsSynchronizable) {
+                        diff.AddedColumns.Add(item);
+                    }
                 }
-            }
-            
-            diff.NewTable = !tableMapper.TableExists;
-            
-            foreach (var item in tableMapper.Columns) {
-                if (!objectMapper.Columns.Contains(item)) {
-                    diff.RemovedColumns.Add(item);
+                
+                diff.NewTable = !tableMapper.TableExists;
+                
+                foreach (var item in tableMapper.Columns) {
+                    if (!objectMapper.Columns.Contains(item) && !objectMapper.IgnoreColumns.Contains(item.Name)) {
+                        diff.RemovedColumns.Add(item);
+                    }
                 }
             }
             

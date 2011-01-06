@@ -8,16 +8,26 @@
     using Boycott.Migrate;
 
     public class ObjectMapper : AbstractMapper {
+        public bool IsSynchronizable { get; set; }
+        public List<string> IgnoreColumns { get; set; }
+
         public ObjectMapper(Type type) {
             var t = Objects.TableMapper.GetTableMapper(type);
             TableName = t.Name;
-            
+
+            var ignoreColumns = type.GetCustomAttributes(typeof(IgnoreColumnsAttribute), true).FirstOrDefault() as IgnoreColumnsAttribute;
+            if (ignoreColumns != null) {
+                IgnoreColumns = ignoreColumns.Columns;
+            }
+            IsSynchronizable = type.GetCustomAttributes(typeof(NotSynchronizableAttribute), true).Length == 0;
+
             Columns = new List<DbColumn>();
             foreach (var col in t.Columns) {
                 var dbcolumn = new DbColumn();
-                dbcolumn.Name = col.Name;
+                var columnAttribute = col.PropertyInfo.GetAttribute<ColumnAttribute>();
+                dbcolumn.Name = columnAttribute == null ? col.Name : columnAttribute.Name;
                 dbcolumn.Type = col.PropertyInfo.GetAttribute<DbTypeAttribute>(typeof(DbTypeAttribute), GetDbType).DbType;
-                dbcolumn.IsPrimaryKey = col.PropertyInfo.HasAttribute(typeof(PrimaryKeyAttribute)) || col.Name.Equals("id");
+                dbcolumn.IsPrimaryKey = col.PropertyInfo.HasAttribute(typeof(PrimaryKeyAttribute)) || col.Name.Equals("id") || (columnAttribute != null && columnAttribute.IsPrimaryKey);
                 dbcolumn.Nullable = !col.PropertyInfo.HasAttribute(typeof(NotNullableAttribute));
                 if (col.Name.Equals("id"))
                     dbcolumn.Nullable = false;
@@ -35,6 +45,7 @@
                 if (col.PropertyInfo.HasAttribute(typeof(DefaultValueAttribute))) {
                     dbcolumn.DefaultValue = col.PropertyInfo.GetAttribute<DefaultValueAttribute>().Value;
                 }
+                dbcolumn.IsSynchronizable = !col.PropertyInfo.HasAttribute(typeof(NotSynchronizableAttribute));
                 Columns.Add(dbcolumn);
             }
         }
