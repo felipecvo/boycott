@@ -13,6 +13,13 @@
             ParameterPrefix = "@";
         }
 
+        public MySQLProvider(string host, string database, string user, string password) : this() {
+            Host = host;
+            Database = database;
+            User = user;
+            Password = password;
+        }
+
         public string Host { get; set; }
         public string User { get; set; }
         public string Password { get; set; }
@@ -152,7 +159,7 @@
                     var type = Regex.Match(reader.GetString(1), @"(\w+)\(?(\d+)?,?(\d+)?\)?");
                     column.Type = GetTypeFromDb(type.Groups[1].Value);
                     
-                    if (column.Type == Migrate.DbType.String) {
+                    if (column.Type == Migrate.DbType.String || column.Type == Migrate.DbType.Char) {
                         column.Limit = int.Parse(type.Groups[2].Value);
                     } else {
                         if (column.Type != DbType.Integer) {
@@ -174,6 +181,9 @@
                     column.Nullable = reader.GetString(2) == "YES";
                     column.IsPrimaryKey = reader.GetString(3) == "PRI";
                     column.DefaultValue = reader.IsDBNull(4) ? null : reader.GetString(4);
+                    if (!string.IsNullOrEmpty(column.DefaultValue) && (column.Type == Migrate.DbType.String || column.Type == Migrate.DbType.Char)) {
+                        column.DefaultValue = string.Format("'{0}'", column.DefaultValue);
+                    }
                     column.AutoIncrement = reader.GetString(5) == "auto_increment";
                     list.Add(column);
                 }
@@ -186,6 +196,7 @@
                 case "varchar":
                     return DbType.String;
                 case "text":
+                case "longtext":
                     return DbType.Text;
                 case "tinyint":
                 case "smallint":
@@ -206,8 +217,11 @@
                     return DbType.Time;
                 case "date":
                     return DbType.Date;
+                case "bit":
                 case "boolean":
                     return DbType.Boolean;
+                case "char":
+                    return DbType.Char;
                 default:
                     throw new Exception(string.Format("Type not known: '{0}'", dbType));
             }
