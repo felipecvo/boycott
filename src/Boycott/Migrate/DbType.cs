@@ -12,6 +12,7 @@
         Date,
         Binary,
         Boolean,
-        Short
+        Short,
+        Char
     }
 }
