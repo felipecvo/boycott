@@ -113,6 +113,8 @@
     <Compile Include="Configuration.cs" />
     <Compile Include="JsonList.cs" />
     <Compile Include="SlugHelper.cs" />
+    <Compile Include="Attributes\IgnoreColumnsAttribute.cs" />
+    <Compile Include="Attributes\NotSynchronizableAttribute.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
