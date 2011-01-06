@@ -13,6 +13,8 @@
         public PropertyInfo PropertyInfo { get; set; }
 
         public static bool IsComplexType(Type type) {
+            if (type.IsEnum) return false;
+
             switch (type.Name) {
                 case "SByte":
                 case "Byte":
