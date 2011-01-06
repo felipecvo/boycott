@@ -4,7 +4,7 @@
     using System.IO;
     using Boycott.Provider;
 
-    static internal class Configuration {
+    public static class Configuration {
         static Configuration() {
             NamingProvider = GetProvider(new NamingProvider());
         }
