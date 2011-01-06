@@ -181,13 +181,21 @@
                         if (val != DBNull.Value) {
                             if (property.ComplexType) {
                                 try {
-                                    var v = Serializer.DeserializeObject(reader.GetString(i));
-                                    property.PropertyInfo.SetValue(result, v, null);
+                                    if (property.PropertyInfo.PropertyType == typeof(Guid)) {
+                                        property.PropertyInfo.SetValue(result, new Guid(reader[i] as string), null);
+                                    } else {
+                                        var v = Serializer.DeserializeObject(reader.GetString(i));
+                                        property.PropertyInfo.SetValue(result, v, null);
+                                    }
                                 } catch (Exception ex) {
                                     Console.WriteLine(ex.Message);
                                 }
                             } else {
-                                property.PropertyInfo.SetValue(result, reader[i], null);
+                                if (property.PropertyInfo.PropertyType.Name == "Boolean") {
+                                    property.PropertyInfo.SetValue(result, Convert.ToBoolean(reader[i]), null);
+                                } else {
+                                    property.PropertyInfo.SetValue(result, reader[i], null);
+                                }
                             }
                         } else {
                             property.PropertyInfo.SetValue(result, null, null);
