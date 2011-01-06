@@ -22,7 +22,6 @@ configurationless, code only, .net ORM library
 
 # Defining a class
 
-```c#
     class Airport : Boycott.Base<Airport> {
         public int Id { get; set; }
         public string Name { get; set; }
@@ -32,19 +31,15 @@ configurationless, code only, .net ORM library
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
     }
-```
 
 
 # Get item by id
 
-```c#
-    var airport = Airport.Find(1);
-```
+    `    var airport = Airport.Find(1);`
 
 
 # Create an item
 
-```c#
     var airport = new Airport() {
         Name = "Guarulhos international Airport",
         Code = "GRU",
@@ -52,29 +47,23 @@ configurationless, code only, .net ORM library
         CityCode = "SAO"
     };
     airport.Save();
-```
 
 
 # Complex find using LINQ
 
-```c#
     var airports = (from a in Airport.db
-                        where a.Name.Contains("guarulhos")
-                        orderby a.Name
-                        select a).Take(10).ToList();
-```
+                    where a.Name.Contains("guarulhos")
+                    orderby a.Name
+                    select a).Take(10).ToList();
 
 
 # Get all rows
 
-```c#
-    var airport = Airport.All();
-```
+   ` var airport = Airport.All();`
 
 
 # Mapping a legacy table
 
-```c#
     [NotSynchronizable]
     [Table(Name = "forum")]
     class Forum : Boycott.Base<Forum> {
@@ -104,4 +93,3 @@ configurationless, code only, .net ORM library
         [Column(Name = "TopicCount")]
         public int TopicCount { get; set; }
     }
-```
