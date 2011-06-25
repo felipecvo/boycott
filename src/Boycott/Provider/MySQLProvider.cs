@@ -94,10 +94,6 @@
             return cmd.ExecuteReader();
         }
 
-        public override bool SupportsMigrations {
-            get { return true; }
-        }
-
         private List<string> tables;
         public override List<string> Tables {
             get {
@@ -137,7 +133,7 @@
             }
         }
 
-        public void DropDatabase() {
+        public override void DropDatabase() {
             var connString = string.Format("server={0};user id={1}; password={2}; pooling=false; Use Procedure Bodies=false;", Host, User, Password);
             
             var conn = new MySqlConnection(connString);

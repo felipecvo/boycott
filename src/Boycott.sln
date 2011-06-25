@@ -1,7 +1,9 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Boycott", "Boycott\Boycott.csproj", "{1737C222-CAEF-4419-9749-7D673BFFE413}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Boycott.Test", "Boycott.Test\Boycott.Test.csproj", "{60F11095-EB47-4901-B55B-31EC415C1473}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,6 +15,13 @@ Global
 		{1737C222-CAEF-4419-9749-7D673BFFE413}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1737C222-CAEF-4419-9749-7D673BFFE413}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1737C222-CAEF-4419-9749-7D673BFFE413}.Release|Any CPU.Build.0 = Release|Any CPU
+		{60F11095-EB47-4901-B55B-31EC415C1473}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{60F11095-EB47-4901-B55B-31EC415C1473}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{60F11095-EB47-4901-B55B-31EC415C1473}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{60F11095-EB47-4901-B55B-31EC415C1473}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = Boycott\Boycott.csproj

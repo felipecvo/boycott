@@ -35,7 +35,10 @@
 
         public abstract bool SupportsParameter { get; }
 
-        public abstract bool SupportsMigrations { get; }
+        [Obsolete]
+        public bool SupportsMigrations {
+            get { throw new InvalidOperationException(); }
+        }
 
         public abstract List<string> Tables { get; }
 
@@ -48,6 +51,8 @@
         public abstract bool DatabaseExists(string databaseName);
 
         public abstract void CreateDatabase();
+
+        public abstract void DropDatabase();
 
         public abstract List<DbColumn> GetColumns(string tableName);
 
