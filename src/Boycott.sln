@@ -5,6 +5,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Boycott", "Boycott\Boycott.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Boycott.Test", "Boycott.Test\Boycott.Test.csproj", "{60F11095-EB47-4901-B55B-31EC415C1473}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Boycott.Console", "Boycott.Console\Boycott.Console.csproj", "{3050BD37-7ECD-49D0-A9C0-CDE984E2EDB8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,13 +17,14 @@ Global
 		{1737C222-CAEF-4419-9749-7D673BFFE413}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1737C222-CAEF-4419-9749-7D673BFFE413}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1737C222-CAEF-4419-9749-7D673BFFE413}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3050BD37-7ECD-49D0-A9C0-CDE984E2EDB8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3050BD37-7ECD-49D0-A9C0-CDE984E2EDB8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3050BD37-7ECD-49D0-A9C0-CDE984E2EDB8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3050BD37-7ECD-49D0-A9C0-CDE984E2EDB8}.Release|Any CPU.Build.0 = Release|Any CPU
 		{60F11095-EB47-4901-B55B-31EC415C1473}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{60F11095-EB47-4901-B55B-31EC415C1473}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{60F11095-EB47-4901-B55B-31EC415C1473}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{60F11095-EB47-4901-B55B-31EC415C1473}.Release|Any CPU.Build.0 = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = Boycott\Boycott.csproj
@@ -60,5 +63,8 @@ Global
 		$0.StandardHeader = $4
 		$4.Text = 
 		$4.inheritsSet = Apache2License
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 EndGlobal
