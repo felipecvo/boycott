@@ -31,6 +31,7 @@
                 case "Double":
                 case "DateTime":
                 case "Boolean":
+                case "TimeSpan":
                     return false;
                 default:
                     return true;

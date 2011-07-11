@@ -80,9 +80,9 @@
                 //case "timestamp":
                 //  dbType = DbType.Timestamp;
                 //  break;
-                //case "time":
-                //  dbType = DbType.Time;
-                //  break;
+                case "TimeSpan":
+                  dbType = DbType.Time;
+                  break;
                 //case "date":
                 //  dbType = DbType.Date;
                 //  break;

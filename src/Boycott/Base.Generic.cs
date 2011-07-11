@@ -337,6 +337,9 @@
                 case TypeCode.UInt64:
                     return Convert.ToUInt64(value);
                 default:
+                    if (type.Name == "TimeSpan") {
+                        return TimeSpan.Parse(value);
+                    }
                     return value;
             }
         }
