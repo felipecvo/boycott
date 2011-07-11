@@ -337,7 +337,7 @@
             var cols = string.Join(", ", quoted_attributes.Keys.ToArray());
             var vals = string.Join(", ", quoted_attributes.Values.ToArray());
             var sql = string.Format("INSERT INTO {0} ({1}) VALUES({2});SELECT @@IDENTITY AS 'LastID';", QuoteTableName(activeRecordBase.Mapper.Name), cols, vals);
-            
+
             using (var reader = ExecuteReader(sql)) {
                 if (reader.Read()) {
                     var prop = activeRecordBase.Mapper.Columns.Find(x => string.Compare(x.Name, "id", true) == 0);
@@ -399,6 +399,8 @@
             } else {
                 if (ColumnMapper.IsComplexType(value.GetType())) {
                     value = Serializer.Serialize(value);
+                } else if (value.GetType().IsEnum) {
+                    return Convert.ChangeType(value, ((Enum)value).GetTypeCode()).ToString();
                 }
                 return string.Format("'{0}'", value.ToString().Replace("'", "''"));
             }

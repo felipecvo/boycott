@@ -339,6 +339,8 @@
                 default:
                     if (type.Name == "TimeSpan") {
                         return TimeSpan.Parse(value);
+                    } else if (type.IsEnum) {
+                        return Enum.Parse(type, value);
                     }
                     return value;
             }
