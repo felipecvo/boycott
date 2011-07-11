@@ -1,4 +1,5 @@
-﻿namespace Boycott.SqlTranslator {
+﻿using Boycott.Helpers;
+namespace Boycott.SqlTranslator {
     using System;
     using System.Linq.Expressions;
     using System.Reflection;
@@ -220,7 +221,12 @@
         private void VisitCount(MethodCallExpression methodCallExpression) {
             Query.AddColumnOutput("COUNT(*)");
             Query.LockColumnOutput = true;
-            Visit(methodCallExpression.Arguments[0]);
+            if (methodCallExpression.Arguments[0] is ConstantExpression) {
+                var table = new SqlTable { Alias = "c", Name = GetTableName(methodCallExpression.Arguments[0]) };
+                Query.Tables.Add(table);
+            } else {
+                Visit(methodCallExpression.Arguments[0]);
+            }
         }
 
         private void VisitJoin(MethodCallExpression expression) {
@@ -371,8 +377,12 @@
         private string GetTableName(object type) {
             if (type is ConstantExpression)
                 type = ((ConstantExpression)type).Value;
-            if (type is Type)
+            if (type is Type) {
+                if (((Type)type).Name == "IEnumerable`1") {
+                    type = TypeSystem.GetElementType((Type)type);
+                }
                 type = Activator.CreateInstance((Type)type);
+            }
             return ((Base)type).Mapper.Name;
         }
     }
