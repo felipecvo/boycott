@@ -113,7 +113,7 @@
             
             var key = GetCacheKey(query);
             if (System.Web.HttpContext.Current != null) {
-                System.Web.HttpContext.Current.Cache.Add(key, cached, null, DateTime.Now.Add(TimeSpan.FromMinutes(10)), TimeSpan.Zero, System.Web.Caching.CacheItemPriority.Normal, null);
+                System.Web.HttpContext.Current.Cache.Add(key, cached, null, DateTime.Now.Add(TimeSpan.FromMinutes(1)), TimeSpan.Zero, System.Web.Caching.CacheItemPriority.Normal, null);
             }
         }
 
