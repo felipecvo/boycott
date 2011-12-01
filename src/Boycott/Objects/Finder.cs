@@ -31,6 +31,21 @@
             return Configuration.DatabaseProvider.Execute<T>(call);
         }
 
+        public static List<T> FindBy<T>(object value, PropertyInfo propertyInfo)
+        {
+            var genericType = new Type[] { typeof(T) };
+            var type = Expression.Constant(Activator.CreateInstance<T>());
+            var parameter = (ParameterExpression)ParameterExpression.Parameter(type.Type, "a");
+
+            var property = Expression.Property(parameter, propertyInfo);
+            var binary = BinaryExpression.Equal(property, Expression.Constant(value));
+            var unary = UnaryExpression.Lambda(binary, new ParameterExpression[] { parameter });
+            var callWhere = Expression.Call(null, whereMethod.MakeGenericMethod(genericType), new Expression[] { type, unary });
+            var call = Expression.Call(null, singleMethod.MakeGenericMethod(genericType), new Expression[] { callWhere });
+
+            return Configuration.DatabaseProvider.Execute<IEnumerable<T>>(call) as List<T>;
+        }
+
         public static List<T> All<T>() {
             var genericType = new Type[] { typeof(T), typeof(T) };
             var type = Expression.Constant(Activator.CreateInstance<T>());

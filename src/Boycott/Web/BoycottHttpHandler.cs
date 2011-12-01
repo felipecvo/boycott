@@ -14,7 +14,7 @@
             var sync = new Synchronizator();
             if (context.Request.Path.Equals("/activerecord/migration")) {
                 context.Response.Write("ok, I gotcha!<br/>\n");
-                if (sync.DatabseExists) {
+                if (sync.DatabaseExists) {
                     sync.Initialize();
                     context.Response.Write("<table>");
                     foreach (var item in sync.Tables) {
