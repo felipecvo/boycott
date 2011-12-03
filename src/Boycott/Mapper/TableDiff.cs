@@ -6,9 +6,18 @@
 
     public class TableDiff {
         public TableDiff(string tableName) {
-            TableName = tableName;
+            TableName = FixGenericsName(tableName);
             RemovedColumns = new List<DbColumn>();
             AddedColumns = new List<DbColumn>();
+        }
+
+        private string FixGenericsName(string name)
+        {
+            int backtick = name.IndexOf('`');
+            if (backtick > -1)
+                name = name.Substring(0, backtick);
+
+            return name;
         }
 
         public string TableName { get; private set; }
