@@ -17,7 +17,20 @@
             selectMethod = methods.Where(x => x.Name == "Select" && x.GetParameters()[1].ParameterType.GetGenericArguments()[0].Name == "Func`2").Single();
         }
 
-        private static MethodCallExpression FindByField<T>(object value, PropertyInfo propertyInfo)
+        public static T Find<T>(int id, PropertyInfo propertyInfo) {
+            var genericType = new Type[] { typeof(T) };
+            var type = Expression.Constant(Activator.CreateInstance<T>());
+            var parameter = (ParameterExpression)ParameterExpression.Parameter(type.Type, "a");
+
+            var property = Expression.Property(parameter, propertyInfo);
+            var binary = BinaryExpression.Equal(property, Expression.Constant(id));
+            var unary = UnaryExpression.Lambda(binary, new ParameterExpression[] { parameter });
+            var callWhere = Expression.Call(null, whereMethod.MakeGenericMethod(genericType), new Expression[] { type, unary });
+            var call = Expression.Call(null, singleMethod.MakeGenericMethod(genericType), new Expression[] { callWhere });
+            return Configuration.DatabaseProvider.Execute<T>(call);
+        }
+
+        public static List<T> FindBy<T>(object value, PropertyInfo propertyInfo)
         {
             var genericType = new Type[] { typeof(T) };
             var type = Expression.Constant(Activator.CreateInstance<T>());
@@ -27,16 +40,7 @@
             var binary = BinaryExpression.Equal(property, Expression.Constant(value));
             var unary = UnaryExpression.Lambda(binary, new ParameterExpression[] { parameter });
             var callWhere = Expression.Call(null, whereMethod.MakeGenericMethod(genericType), new Expression[] { type, unary });
-            return Expression.Call(null, singleMethod.MakeGenericMethod(genericType), new Expression[] { callWhere });
-        }
-
-        public static T Find<T>(int id, PropertyInfo propertyInfo) {
-            return Configuration.DatabaseProvider.Execute<T>(FindByField<T>(id, propertyInfo));
-        }
-
-        public static List<T> FindBy<T>(object value, PropertyInfo propertyInfo)
-        {
-            return Configuration.DatabaseProvider.Execute<IEnumerable<T>>(FindByField<T>(value, propertyInfo)) as List<T>;
+            return Configuration.DatabaseProvider.Execute<IEnumerable<T>>(callWhere) as List<T>;
         }
 
         public static List<T> All<T>() {
