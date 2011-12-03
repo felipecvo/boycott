@@ -35,7 +35,7 @@
                 diff.NewTable = !tableMapper.TableExists;
                 
                 foreach (var item in tableMapper.Columns) {
-                    if (!objectMapper.Columns.Contains(item) && !objectMapper.IgnoreColumns.Contains(item.Name)) {
+                    if (!objectMapper.Columns.Contains(item) && (objectMapper.IgnoreColumns == null || !objectMapper.IgnoreColumns.Contains(item.Name))) {
                         diff.RemovedColumns.Add(item);
                     }
                 }

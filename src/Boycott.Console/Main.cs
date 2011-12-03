@@ -45,6 +45,7 @@ namespace Boycott.Console {
             new Book() { Id = 2, Name = "O Legado de Joran" }.Save();
             new Book() { Id = 3, Name = "C#" }.Save();
             List<Book> books = Book.FindBy("name", "O Legado de Joran");
+            Book book = Book.Find(2);
 
 
             System.Console.WriteLine("Hello World!");
