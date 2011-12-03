@@ -28,27 +28,36 @@
         public List<string> ToSql() {
             var sb = new StringBuilder();
             var list = new List<string>();
-            
-            if (RemovedColumns.Count > 0) {
-                foreach (var item in RemovedColumns) {
-                    list.Add(string.Format("ALTER TABLE {0} DROP COLUMN {1}", TableName, item.Name));
+
+            if (AddedColumns.Count > 0 || RemovedColumns.Count > 0)
+            {
+                if (RemovedColumns.Count > 0)
+                {
+                    foreach (var item in RemovedColumns)
+                    {
+                        list.Add(string.Format("ALTER TABLE {0} DROP COLUMN {1}", TableName, item.Name));
+                    }
                 }
-            }
-            
-            if (NewTable) {
-                sb.AppendFormat("CREATE TABLE {0} (", TableName);
-            } else {
-                sb.AppendFormat("ALTER TABLE {0} ADD COLUMN (", TableName);
-            }
-            
-            sb.Append(string.Join(",", AddedColumns.ConvertAll<string>(x => x.ToString()).ToArray()));
-            
-            sb.Append(")");
-            
-            list.Add(sb.ToString());
-            
-            if (NewTable && AddedColumns.FindAll(x => x.IsPrimaryKey).Count > 0) {
-                list.Add(string.Format("ALTER TABLE {0} ADD PRIMARY KEY ({1})", TableName, string.Join(",", AddedColumns.FindAll(x => x.IsPrimaryKey).ConvertAll<string>(x => x.Name).ToArray())));
+
+                if (NewTable)
+                {
+                    sb.AppendFormat("CREATE TABLE {0} (", TableName);
+                }
+                else
+                {
+                    sb.AppendFormat("ALTER TABLE {0} ADD COLUMN (", TableName);
+                }
+
+                sb.Append(string.Join(",", AddedColumns.ConvertAll<string>(x => x.ToString()).ToArray()));
+
+                sb.Append(")");
+
+                list.Add(sb.ToString());
+
+                if (NewTable && AddedColumns.FindAll(x => x.IsPrimaryKey).Count > 0)
+                {
+                    list.Add(string.Format("ALTER TABLE {0} ADD PRIMARY KEY ({1})", TableName, string.Join(",", AddedColumns.FindAll(x => x.IsPrimaryKey).ConvertAll<string>(x => x.Name).ToArray())));
+                }
             }
             
             return list;

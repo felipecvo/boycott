@@ -108,10 +108,6 @@
             var list = new List<Type>();
             var assemblies = AppDomain.CurrentDomain.GetAssemblies();
             foreach (var assembly in assemblies) {
-                if (assembly.FullName.Contains("Samjokgo"))
-                {
-                    int i = 0;
-                }
                 list.AddRange(assembly.GetTypes().Where(type => type.IsSubclassOf(typeof(Base))).ToList());
             }
             list.Remove(typeof(Base<>));
