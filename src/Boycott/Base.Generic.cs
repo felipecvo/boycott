@@ -99,12 +99,6 @@
             return Finder.FindAll<T>(conditions);
         }
 
-        public static List<T> FindBy(string field, object value)
-        {
-            ColumnMapper column = mapper.Columns.Find(x => x.Name == field.ToLower());
-            return (column != null? Finder.FindBy<T>(value, column.PropertyInfo) : new List<T>());
-        }
-
         public static T Find(int id) {
             return Finder.Find<T>(id, mapper.PrimaryKeyColumns.First().PropertyInfo);
             //var tipo = Expression.Constant(Activator.CreateInstance<T>());

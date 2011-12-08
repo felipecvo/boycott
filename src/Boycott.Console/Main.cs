@@ -41,13 +41,17 @@ namespace Boycott.Console {
 
             var total = Author.db.Count();
 
+            foreach (Book b in Book.All())
+            {
+                Book.Delete(b.Id);
+            }
             new Book() { Id = 1, Name = "O Senhor dos anéis" }.Save();
             new Book() { Id = 2, Name = "O Legado de Joran" }.Save();
             new Book() { Id = 3, Name = "C#" }.Save();
             new Book() { Id = 4, Name = "O Senhor dos anéis" }.Save();
-            List<Book> books = Book.FindBy("name", "O Legado de Joran");
+            List<Book> books = Book.FindAll(new {Name = "O Legado de Joran"});
             Book book = Book.Find(2);
-            List<Book> books_lotr = Book.FindBy("name", "O Senhor dos anéis");
+            List<Book> books_lotr = Book.FindAll(new { Name = "O Senhor dos anéis" } );
 
             System.Console.WriteLine("Hello World!");
             System.Console.Read();
