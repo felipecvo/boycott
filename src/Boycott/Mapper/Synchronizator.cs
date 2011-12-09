@@ -12,7 +12,7 @@
             get { return tables; }
         }
 
-        public bool DatabseExists {
+        public bool DatabaseExists {
             get { return Configuration.DatabaseProvider.DatabaseExists(Configuration.DatabaseProvider.Database); }
         }
 
