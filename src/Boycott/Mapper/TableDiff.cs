@@ -60,6 +60,23 @@
                 }
             }
             
+            if (NewTable) {
+                sb.AppendFormat("CREATE TABLE {0} (", TableName);
+            } else {
+                sb.AppendFormat("ALTER TABLE {0} ADD ", TableName);
+                //sb.AppendFormat("ALTER TABLE {0} ADD COLUMN (", TableName);
+            }
+            
+            sb.Append(string.Join(",", AddedColumns.ConvertAll<string>(x => x.ToString()).ToArray()));
+            
+            //sb.Append(")");
+            
+            list.Add(sb.ToString());
+            
+            if (NewTable && AddedColumns.FindAll(x => x.IsPrimaryKey).Count > 0) {
+                list.Add(string.Format("ALTER TABLE {0} ADD PRIMARY KEY ({1})", TableName, string.Join(",", AddedColumns.FindAll(x => x.IsPrimaryKey).ConvertAll<string>(x => x.Name).ToArray())));
+            }
+            
             return list;
         }
 

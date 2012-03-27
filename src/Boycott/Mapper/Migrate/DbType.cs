@@ -13,6 +13,7 @@
         Binary,
         Boolean,
         Short,
-        Char
+        Char,
+        Byte
     }
 }

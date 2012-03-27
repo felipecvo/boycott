@@ -18,6 +18,8 @@
             var ignoreColumns = type.GetCustomAttributes(typeof(IgnoreColumnsAttribute), true).FirstOrDefault() as IgnoreColumnsAttribute;
             if (ignoreColumns != null) {
                 IgnoreColumns = ignoreColumns.Columns;
+            } else {
+                IgnoreColumns = new List<string>();
             }
             IsSynchronizable = type.GetCustomAttributes(typeof(NotSynchronizableAttribute), true).Length == 0;
 
@@ -68,6 +70,9 @@
                 case "Int64":
                     dbType = DbType.Long;
                     break;
+                case "Byte":
+                    dbType = DbType.Byte;
+                    break;
                 case "Double":
                     dbType = DbType.Float;
                     break;
@@ -111,6 +116,7 @@
                 list.AddRange(assembly.GetTypes().Where(type => type.IsSubclassOf(typeof(Base))).ToList());
             }
             list.Remove(typeof(Base<>));
+            list.Remove(typeof(BusinessBase<>));
             return list;
         }
     }

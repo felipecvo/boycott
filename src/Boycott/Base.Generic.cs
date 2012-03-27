@@ -9,8 +9,9 @@
     using Boycott.Objects;
     using Boycott.Provider;
     using Boycott.Validation;
+    using Boycott.Core;
 
-    public class Base<T> : Base, IQueryable<T>, IOrderedQueryable<T> {
+    public class Base<T> : Base, IQueryable<T>, IOrderedQueryable<T>, ISelfQuery {
         #region Fields
 
         private DatabaseProvider provider;
@@ -70,7 +71,11 @@
         #region IEnumerable Members
 
         IEnumerator IEnumerable.GetEnumerator() {
-            return this.provider.Execute<IEnumerable<T>>(this.expression).GetEnumerator();
+            if (expression.NodeType == ExpressionType.Constant) {
+                return new List<string>() { "DisplayName" }.GetEnumerator();
+            } else {
+                return this.provider.Execute<IEnumerable<T>>(this.expression).GetEnumerator();
+            }
         }
 
         #endregion
@@ -118,106 +123,6 @@
             //return Configuration.DatabaseProvider.Execute<T>(m);
         }
 
-        protected static List<ValidationAttribute> ValidationsAttributes { get; set; }
-
-        private void Validate() {
-            Errors = new List<string>();
-            foreach (var item in ValidationsAttributes) {
-                item.Validate(this);
-            }
-            if (Errors.Count > 0)
-                throw new ValidationException();
-        }
-
-        #region CUD Methods
-
-        public delegate bool CallbackHandler(object sender);
-
-        public event CallbackHandler BeforeSave;
-        public event CallbackHandler BeforeCreate;
-        public event CallbackHandler BeforeUpdate;
-
-        public bool Save() {
-            if (BeforeSave != null) {
-                if (!BeforeSave(this))
-                    return false;
-            }
-            return CreateOrUpdate();
-        }
-
-        private bool CreateOrUpdate() {
-            if (ReadOnly)
-                throw new Exception("ReadOnly");
-            var success = IsNew ? Create() : Update();
-            if (success)
-                ClearCache(Mapper.Name);
-            return success;
-        }
-
-        private bool Create() {
-            try {
-                if (BeforeCreate != null) {
-                    if (!BeforeCreate(this))
-                        return false;
-                }
-                Validate();
-                
-                var createdAt = Mapper.Columns.Find(name => string.Compare(name.Name, "created_at") == 0);
-                if (createdAt != null)
-                    createdAt.PropertyInfo.SetValue(this, DateTime.Now, null);
-                var updatedAt = Mapper.Columns.Find(name => string.Compare(name.Name, "updated_at") == 0);
-                if (updatedAt != null)
-                    updatedAt.PropertyInfo.SetValue(this, DateTime.Now, null);
-                
-                Provider.ExecuteInsert(this);
-                
-                return true;
-            } catch (Exception ex) {
-                Console.WriteLine(ex.Message);
-                Console.WriteLine(ex.StackTrace);
-                if (!(ex is ValidationException))
-                    this.Errors.Add(ex.Message);
-                return false;
-            }
-        }
-
-        private bool Update() {
-            try {
-                if (BeforeUpdate != null) {
-                    if (!BeforeUpdate(this))
-                        return false;
-                }
-                Validate();
-                
-                var updatedAt = Mapper.Columns.Find(name => string.Compare(name.Name, "updated_at") == 0);
-                if (updatedAt != null)
-                    updatedAt.PropertyInfo.SetValue(this, DateTime.Now, null);
-                
-                Configuration.DatabaseProvider.ExecuteUpdate(this);
-                
-                return true;
-            } catch (Exception ex) {
-                if (!(ex is ValidationException))
-                    this.Errors.Add(ex.Message);
-                return false;
-            }
-        }
-
-        public static bool Delete(int id) {
-            if (mapper.PrimaryKeyColumns.Count > 1)
-                throw new Exception("Only support one primary key column");
-            try {
-                Configuration.DatabaseProvider.ExecuteDelete(id, mapper.Name, mapper.PrimaryKeyColumns.First().Name);
-                ClearCache(mapper.Name);
-            } catch {
-                return false;
-            }
-            
-            return true;
-        }
-
-        #endregion
-
         #region Cache
 
         private static void ClearCache(string table) {
@@ -232,7 +137,20 @@
 
         #endregion
 
-        protected internal override void SetExpression(Expression expression) {
+        public static bool Delete(int id) {
+            if (mapper.PrimaryKeyColumns.Count > 1)
+                throw new Exception("Only support one primary key column");
+            try {
+                Configuration.DatabaseProvider.ExecuteDelete(id, mapper.Name, mapper.PrimaryKeyColumns.First().Name);
+                ClearCache(mapper.Name);
+            } catch {
+                return false;
+            }
+
+            return true;
+        }
+
+        void ISelfQuery.SetExpression(Expression expression) {
             this.expression = expression;
         }
 

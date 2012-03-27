@@ -12,6 +12,8 @@
     using Boycott.Logging;
     using Boycott.Objects;
     using Boycott.SqlTranslator;
+    using System.Configuration;
+    using Boycott.Core;
 
     public abstract class DatabaseProvider : IQueryProvider {
         #region Fields
@@ -177,7 +179,7 @@
 
         private T LoadFromDataReader<T>(IDataReader reader) {
             var result = (T)Activator.CreateInstance(typeof(T));
-            var activeRecord = result as Base<T>;
+            var activeRecord = result as Base;
             if (activeRecord != null) {
                 for (int i = 0; i < reader.FieldCount; i++) {
                     var property = activeRecord.Mapper.Columns.Find(x => string.Compare(x.Name, reader.GetName(i), true) == 0);
@@ -256,13 +258,13 @@
         protected abstract IDataReader ExecuteReader(SqlQuery query);
 
         public IQueryable<T> CreateQuery<T>(Expression expression) {
-            if (typeof(T).IsSubclassOf(typeof(Base))) {
+            if (typeof(T).GetInterface("Boycott.Core.ISelfQuery") != null) {
                 var query = Activator.CreateInstance(typeof(T));
-                ((Base)query).SetExpression(expression);
+                ((ISelfQuery)query).SetExpression(expression);
                 return query as IQueryable<T>;
             } else {
                 Type elementType = expression.Type.GetGenericArguments()[0];
-                var query = (Base<T>)Activator.CreateInstance(typeof(Base<>).MakeGenericType(elementType));
+                var query = (DbQueryable<T>)Activator.CreateInstance(typeof(DbQueryable<>).MakeGenericType(elementType));
                 query.SetExpression(expression);
                 return query;
             }
@@ -412,6 +414,18 @@
             ExecuteNonQuery(sql);
         }
 
+        /// <summary>
+        /// Build a new provider from connectionstring settings
+        /// </summary>
+        /// <param name="name">connection string key</param>
+        /// <returns>new DatabaseProvider based on providerName settings</returns>
+        public static DatabaseProvider BuildFromConfig(string name) {
+            var connectionSettings = ConfigurationManager.ConnectionStrings[name];
+
+            var type = Assembly.GetAssembly(typeof(DatabaseProvider)).GetType(connectionSettings.ProviderName);
+
+            return Activator.CreateInstance(type, connectionSettings.ConnectionString) as DatabaseProvider;
+        }
 
         public abstract string GetAutoIncrement();
 

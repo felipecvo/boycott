@@ -5,6 +5,7 @@
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
+    using Boycott.Core;
 
     public class Finder
     {
@@ -35,8 +36,28 @@
             return Configuration.DatabaseProvider.Execute<T>(call);
         }
 
-        public static List<T> All<T>()
-        {
+        public static List<T> All<T>() {
+            //var genericType = new Type[] { typeof(T), typeof(T) };
+            //var type = Expression.Constant(Activator.CreateInstance<T>());
+            //var parameter = (ParameterExpression)ParameterExpression.Parameter(type.Type, "a");
+
+            //var unary = UnaryExpression.Lambda(parameter, new ParameterExpression[] { parameter });
+            //var call = Expression.Call(null, selectMethod.MakeGenericMethod(genericType), new Expression[] { type, unary });
+
+            //return Configuration.DatabaseProvider.Execute<IEnumerable<T>>(call) as List<T>;
+
+            var q = new DbQueryable<T>();
+
+            try {
+                var all = (from t in q
+                           select t).ToList();
+
+                return all;
+            } catch (Exception e) {
+                var ue = e.Message;
+                throw;
+            }
+
             var genericType = new Type[] { typeof(T), typeof(T) };
             var type = Expression.Constant(Activator.CreateInstance<T>());
             var parameter = (ParameterExpression)ParameterExpression.Parameter(type.Type, "a");

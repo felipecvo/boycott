@@ -1,4 +1,15 @@
-﻿namespace Boycott.Validation {
+﻿namespace Boycott.Validations {
+    using System;
+    using System.Reflection;
+
+    public class ValidatesPresenceOfAttribute : ValidationAttribute {
+        public ValidatesPresenceOfAttribute() {
+            Validator = new ValidatesPresenceOf();
+        }
+    }
+}
+
+namespace Boycott.Validation {
     using System;
     using System.Collections.Generic;
 

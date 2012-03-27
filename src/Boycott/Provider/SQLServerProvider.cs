@@ -15,15 +15,26 @@ namespace Boycott.Provider {
     using System.Data.SqlClient;
     using DbType = Boycott.Migrate.DbType;
     using System.Text.RegularExpressions;
+    using System.Threading;
 
     public class SQLServerProvider : DatabaseProvider {
         public SQLServerProvider() : this(".", "master", "sa", "sa") { }
+
+        public SQLServerProvider(string connectionString) {
+            var builder = new SqlConnectionStringBuilder(connectionString);
+            DataSource = builder.DataSource;
+            Database = builder.InitialCatalog;
+            User = builder.UserID;
+            Password = builder.Password;
+            ParameterPrefix = "@";
+        }
 
         public SQLServerProvider(string dataSource, string database, string user, string password) {
             DataSource = dataSource;
             Database = database;
             User = user;
             Password = password;
+            ParameterPrefix = "@";
         }
 
         public string DataSource { get; set; }
@@ -112,7 +123,7 @@ namespace Boycott.Provider {
 
         public override IDbConnection GetConnection() {
             var conn = new SqlConnection();
-            conn.ConnectionString = string.Format("Data Source={0};Initial Catalog={1};User Id={2};Password={3};", DataSource, Database, User, Password);
+            conn.ConnectionString = string.Format("Pooling=True;Data Source={0};Initial Catalog={1};User Id={2};Password={3};", DataSource, Database, User, Password);
             conn.Open();
             return conn;
         }
@@ -141,6 +152,7 @@ namespace Boycott.Provider {
                 cmd.ExecuteNonQuery();
             }
             Database = name;
+            SqlConnection.ClearAllPools();
         }
 
         public override void DropDatabase() {
@@ -148,6 +160,9 @@ namespace Boycott.Provider {
             Database = string.Empty;
             using (var conn = GetConnection()) {
                 var cmd = conn.CreateCommand();
+                cmd.CommandText = string.Format("ALTER DATABASE {0} SET SINGLE_USER WITH ROLLBACK IMMEDIATE", name);
+                cmd.ExecuteNonQuery();
+                cmd = conn.CreateCommand();
                 cmd.CommandText = string.Format("DROP DATABASE {0}", name);
                 cmd.ExecuteNonQuery();
             }
@@ -172,11 +187,11 @@ namespace Boycott.Provider {
 
         public override List<DbColumn> GetColumns(string tableName) {
             var list = new List<DbColumn>();
-            var pk = (string)ExecuteScalar(string.Format("select 	c.COLUMN_NAME from 	INFORMATION_SCHEMA.TABLE_CONSTRAINTS pk ,INFORMATION_SCHEMA.KEY_COLUMN_USAGE c where pk.TABLE_NAME = '{0}' and	CONSTRAINT_TYPE = 'PRIMARY KEY' and	c.TABLE_NAME = pk.TABLE_NAME and	c.CONSTRAINT_NAME = pk.CONSTRAINT_NAME", tableName));
+            var pk = (string)ExecuteScalar(string.Format("SELECT c.COLUMN_NAME FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS pk ,INFORMATION_SCHEMA.KEY_COLUMN_USAGE c WHERE pk.TABLE_NAME = '{0}' and	CONSTRAINT_TYPE = 'PRIMARY KEY' and	c.TABLE_NAME = pk.TABLE_NAME and	c.CONSTRAINT_NAME = pk.CONSTRAINT_NAME", tableName));
             using (var reader = ExecuteReader(string.Format("EXEC sp_columns '{0}'", tableName))) {
                 while (reader.Read()) {
                     var column = new DbColumn();
-                    column.Name = reader.GetString(2);
+                    column.Name = reader.GetString(3);
                     var type = reader.GetString(5);
                     if (type.Contains("identity")) {
                         column.AutoIncrement = true;
@@ -187,10 +202,10 @@ namespace Boycott.Provider {
                     if (column.Type == Migrate.DbType.String || column.Type == Migrate.DbType.Char) {
                         column.Limit = reader.GetInt32(7);
                     } else {
-                        if (column.Type != DbType.Integer) {
+                        if (column.Type != DbType.Integer && column.Type != DbType.DateTime) {
                             column.Precision = reader.GetInt32(6);
-                            if (!reader.IsDBNull(8)) {
-                                column.Scale = reader.GetInt32(8);
+                            if (!reader.IsDBNull(7)) {
+                                column.Scale = reader.GetInt32(7);
                             }
                         }
                     }
@@ -200,14 +215,10 @@ namespace Boycott.Provider {
                         }
                         column.Precision = 0;
                     }
+                    column.IsPrimaryKey = column.Name == pk;
                     Console.WriteLine(reader.GetValue(10).GetType().Name);
                     column.Nullable = reader.GetInt16(10) == 1;
-                    column.IsPrimaryKey = reader.GetString(3) == "PRI";
                     column.DefaultValue = reader.IsDBNull(12) ? null : reader.GetString(12);
-                    if (!string.IsNullOrEmpty(column.DefaultValue) && (column.Type == Migrate.DbType.String || column.Type == Migrate.DbType.Char)) {
-                        column.DefaultValue = string.Format("'{0}'", column.DefaultValue);
-                    }
-                    column.AutoIncrement = reader.GetString(5) == "auto_increment";
                     list.Add(column);
                 }
             }
@@ -224,6 +235,7 @@ namespace Boycott.Provider {
                 case "ntext":
                     return DbType.Text;
                 case "tinyint":
+                    return DbType.Byte;
                 case "smallint":
                     return DbType.Short;
                 case "int":
@@ -264,6 +276,8 @@ namespace Boycott.Provider {
                     return "SMALLINT";
                 case DbType.Long:
                     return "BIGINT";
+                case DbType.Byte:
+                    return "TINYINT";
                 default:
                     return type.ToString().ToUpper();
             }

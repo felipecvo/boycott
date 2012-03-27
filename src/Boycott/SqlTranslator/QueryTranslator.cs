@@ -4,6 +4,8 @@ namespace Boycott.SqlTranslator {
     using System.Linq.Expressions;
     using System.Reflection;
     using Boycott.Attributes;
+    using System.Linq;
+    using Boycott.Core;
 
     public class QueryTranslator {
         private SqlQuery Query { get; set; }
@@ -304,9 +306,28 @@ namespace Boycott.SqlTranslator {
             Visit(expression.Arguments[0]);
         }
 
+        bool IsSubclassOfRawGeneric(Type generic, Type toCheck) {
+            while (toCheck != typeof(object)) {
+                var cur = toCheck.IsGenericType ? toCheck.GetGenericTypeDefinition() : toCheck;
+                if (generic == cur) {
+                    return true;
+                }
+                toCheck = toCheck.BaseType;
+                if (toCheck == null) break;
+            }
+            return false;
+        }
+
         private void VisitSelect(MethodCallExpression expression) {
             if (expression.Arguments[0].Type.IsSubclassOf(typeof(Base))) {
                 var tableName = GetTableName(((ConstantExpression)expression.Arguments[0]).Value);
+                var alias = ((LambdaExpression)StripQuotes(expression.Arguments[1])).Parameters[0].Name;
+                var table = new SqlTable { Alias = alias, Name = tableName };
+                if (!Query.Tables.Contains(table))
+                    Query.Tables.Add(table);
+            } else if (IsSubclassOfRawGeneric(typeof(DbQueryable<>), expression.Arguments[0].Type)) {
+                var queryable = ((ConstantExpression)expression.Arguments[0]).Value as IQueryable;
+                var tableName = GetTableName(queryable.ElementType);
                 var alias = ((LambdaExpression)StripQuotes(expression.Arguments[1])).Parameters[0].Name;
                 var table = new SqlTable { Alias = alias, Name = tableName };
                 if (!Query.Tables.Contains(table))
@@ -358,6 +379,13 @@ namespace Boycott.SqlTranslator {
         private void ProcessTable(MethodCallExpression expression) {
             if (expression.Arguments[0].Type.IsSubclassOf(typeof(Base))) {
                 var tableName = GetTableName(expression.Arguments[0]);
+                var alias = ((LambdaExpression)StripQuotes(expression.Arguments[1])).Parameters[0].Name;
+                var table = new SqlTable { Alias = alias, Name = tableName };
+                if (!Query.Tables.Contains(table))
+                    Query.Tables.Add(table);
+            } else if (IsSubclassOfRawGeneric(typeof(DbQueryable<>), expression.Arguments[0].Type)) {
+                var queryable = ((ConstantExpression)expression.Arguments[0]).Value as IQueryable;
+                var tableName = GetTableName(queryable.ElementType);
                 var alias = ((LambdaExpression)StripQuotes(expression.Arguments[1])).Parameters[0].Name;
                 var table = new SqlTable { Alias = alias, Name = tableName };
                 if (!Query.Tables.Contains(table))
